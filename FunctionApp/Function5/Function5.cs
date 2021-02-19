@@ -23,7 +23,7 @@ namespace FunctionApp
 
         [FunctionName(nameof(Function5))]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            FunctionExecutionContext executionContext)
+            FunctionContext executionContext)
         {
             var logger = executionContext.Logger;
             logger.LogInformation("message logged");
@@ -46,12 +46,11 @@ namespace FunctionApp
 
         public HttpResponseData ProcessRequest(HttpRequestData httpRequest)
         {
-            var response = new HttpResponseData(HttpStatusCode.OK);
-            var headers = new Dictionary<string, string>();
-            headers.Add("Date", "Mon, 18 Jul 2016 16:06:00 GMT");
-            headers.Add("Content", "Content - Type: text / html; charset = utf - 8");
+            var response = httpRequest.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Date", "Mon, 18 Jul 2016 16:06:00 GMT");
+            response.Headers.Add("Content", "Content - Type: text / html; charset = utf - 8");
 
-            response.Headers = headers;
+            response.Cookies.Append("dotnetworker", "delicious cookie");
 
             var responseBuilder = new StringBuilder();
 
@@ -77,7 +76,7 @@ namespace FunctionApp
                 }
             }
 
-            response.Body = responseBuilder.ToString();
+            response.WriteString(responseBuilder.ToString());
             return response;
         }
     }
